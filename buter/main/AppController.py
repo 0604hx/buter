@@ -12,5 +12,4 @@ from ..models import Application
 @main.route("/app/list")
 def lists():
     datas = Application.query.all()
-    LOG.info("加载应用列表，size=%d", len(datas))
     return jsonify(datas)

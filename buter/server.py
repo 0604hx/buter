@@ -5,8 +5,9 @@ add on 2017-11-13 17:41:44
 """
 # encoding: utf-8
 import logging
+import traceback
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 from buter.logger import LOG, initLogger
@@ -46,6 +47,7 @@ def create_app(config_name):
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
     #
     # from .auth import auth as auth_blueprint
     # app.register_blueprint(auth_blueprint, url_prefix='/auth')
@@ -60,6 +62,29 @@ def create_app(config_name):
         """
         LOG.debug("visit index page %s", config.SERVER_INDEX_PAGE)
         return app.send_static_file(config.SERVER_INDEX_PAGE)
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return jsonify({
+            "success": False,
+            "message": '[404] Page not found!'
+        }), 404
+
+    @app.errorhandler(Exception)
+    def global_error_handler(e):
+        """
+        全局的异常处理：
+        1. 打印到 logger ：以便记录异常信息
+        2. 封装成 Result 对象，以 json 格式返回到 Client
+        :param e:
+        :return:
+        """
+        LOG.error("%s\n%s", e, traceback.format_exc())
+        return jsonify({
+            "success": False,
+            "message": traceback.format_exc(),
+            "data": str(e)
+        }), 500
 
     # 定位静态文件夹为上级 static，否则无法正常浏览静态资源
     app.static_folder = configs[config_name].SERVER_STATIC_DIR
