@@ -4,7 +4,7 @@ Application 控制器
 add on 2017-11-14 16:46:35
 """
 from flask import jsonify
-from app.logger import LOG
+from buter.logger import LOG
 from . import main
 from ..models import Application
 

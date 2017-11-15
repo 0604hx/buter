@@ -1,5 +1,5 @@
 import unittest
-from app.util.OSUtil import *
+from buter.util.OSUtil import *
 
 
 class TestOSUtil(unittest.TestCase):

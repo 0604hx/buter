@@ -8,7 +8,7 @@ add on 2017-11-13 17:41:44
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from app.logger import LOG,initFileLogger
+from buter.logger import LOG,initFileLogger
 from config import configs
 
 # 实例化 DataBase
@@ -18,12 +18,19 @@ db = SQLAlchemy()
 def create_app(config_name):
     app = Flask(__name__, static_url_path='')
 
+    # What it does is prepare the application to work with SQLAlchemy.
+    # However that does not now bind the SQLAlchemy object to your application.
+    # Why doesn’t it do that? Because there might be more than one application created.
+    # >>> from yourapp import create_app
+    # >>> app = create_app()
+    # >>> app.app_context().push()
+    app.app_context().push()
+
     config = configs[config_name]
 
     app.config.from_object(config)
     config.init_app(app)
 
-    db.app = app
     db.init_app(app)
     try:
         db.create_all()

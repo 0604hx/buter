@@ -1,7 +1,7 @@
 import unittest
 
-from app.server import create_app,db
-from app.models import Application
+from buter.server import create_app,db
+from buter.models import Application
 
 
 class ApplicationModelTestCase(unittest.TestCase):
@@ -20,7 +20,7 @@ class ApplicationModelTestCase(unittest.TestCase):
 
     def test_list(self):
         query = Application.query.first()
-        print(query)
+        print(query.__dict__)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 import os
 
-from app.server import create_app
+from buter.server import create_app
 
 env = os.getenv('FLASK_CONFIG') or 'default'
 app, config = create_app(env)

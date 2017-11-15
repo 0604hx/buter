@@ -1,8 +1,8 @@
 from flask import Flask, jsonify
 
-from app.logger import LOG
+from buter.logger import LOG
 from . import main
-from app.util import OSUtil
+from buter.util import OSUtil
 
 
 @main.route("/heartbeat/<string:data>")

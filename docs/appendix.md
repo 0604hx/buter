@@ -6,6 +6,9 @@
 
 [flask-jsonify-a-list-of-objects](https://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects)
 
+[how-to-serialize-sqlalchemy-result-to-json](https://stackoverflow.com/questions/5022066/how-to-serialize-sqlalchemy-result-to-json)
+
+
 ## python参考资源
 
 ### 博客
