@@ -1,5 +1,7 @@
 import unittest
 
+from flask import jsonify
+
 from buter.server import create_app,db
 from buter.models import Application
 
@@ -20,7 +22,7 @@ class ApplicationModelTestCase(unittest.TestCase):
 
     def test_list(self):
         query = Application.query.first()
-        print(query.__dict__)
+        print(jsonify(query))
 
 
 if __name__ == '__main__':

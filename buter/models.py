@@ -3,7 +3,7 @@ add on 2017-11-14 15:42:54
 """
 from datetime import datetime
 
-from buter.server import db
+from .server import db
 
 
 class Application(db.Model):

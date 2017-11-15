@@ -9,6 +9,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from buter.logger import LOG,initFileLogger
+from buter.util.FlaskTool import SQLAlchemyEncoder
 from config import configs
 
 # 实例化 DataBase
@@ -25,6 +26,8 @@ def create_app(config_name):
     # >>> app = create_app()
     # >>> app.app_context().push()
     app.app_context().push()
+
+    app.json_encoder = SQLAlchemyEncoder
 
     config = configs[config_name]
 
