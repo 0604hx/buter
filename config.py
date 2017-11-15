@@ -39,8 +39,12 @@ class Config:
     日志相关配置
     '''
     LOG_LEVEL = logging.DEBUG
-    LOG_FORMAT = '%(asctime)s %(levelname)s %(process)d - %(filename)s (%(lineno)d) : %(message)s'
+    LOG_FORMAT = '%(asctime)s %(levelname)s %(process)d - [%(threadName)s] %(filename)s (%(lineno)d) : %(message)s'
     LOG_FILE = "./logs/buter.log"
+    # 默认每天产生一个日志文件（ S、M、D、W0-W6 分别代表了时间单位 秒、分、时、天、周）
+    LOG_FILE_WHEN = "D"
+    # 日志轮询的时间单位
+    LOG_FILE_INTERVAL = 1
     # 默认保留15天内的日志
     LOG_BACKUP = 15
     LOG_ENCODING = 'utf-8'
@@ -54,7 +58,7 @@ class DevelopmentConfig(Config):
     """
     开发环境下的配置，如果没有指定则作为默认配置
     """
-
+    LOG_FILE = None
 
 class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///"+os.path.join(basedir, "buter-test.db")

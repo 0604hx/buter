@@ -4,11 +4,12 @@
 add on 2017-11-13 17:41:44
 """
 # encoding: utf-8
+import logging
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from buter.logger import LOG,initFileLogger
+from buter.logger import LOG, initLogger
 from buter.util.FlaskTool import SQLAlchemyEncoder
 from config import configs
 
@@ -17,6 +18,10 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
+    config = configs[config_name]
+
+    initLogger(config)
+
     app = Flask(__name__, static_url_path='')
 
     # What it does is prepare the application to work with SQLAlchemy.
@@ -29,8 +34,6 @@ def create_app(config_name):
 
     app.json_encoder = SQLAlchemyEncoder
 
-    config = configs[config_name]
-
     app.config.from_object(config)
     config.init_app(app)
 
@@ -40,8 +43,6 @@ def create_app(config_name):
         LOG.info("call db.create_all() success!")
     except Exception as e:
         LOG.error("error on try to create all tables", e)
-
-    initFileLogger(config)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
