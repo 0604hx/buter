@@ -32,30 +32,25 @@ def add():
     录入新的应用
     :return:
     """
-    name = request.values['name']
-    version = request.values['version']
+    ps = request.values
+    name = ps.get('name')
+    version = ps.get('version')
 
     notEmptyStr(name=name, version=version)
 
-    id = request.values.get('id')
+    id = ps.get('id')
 
     app = Application(
         name=name,
         id=id,
         version=version,
-        remark=request.values['remark'])
+        remark=ps.get('remark'))
 
     if id and int(id) > 0:
         oldApp = Application.query.get(id)
         if oldApp is None:
             raise ServiceException("ID=%d 的应用不存在故不能编辑" % id)
 
-        # if app.name is not None:
-        #     oldApp.name = app.name
-        # if app.version is not None:
-        #     oldApp.version = app.version
-        # if app.remark is not None:
-        #     oldApp.remark = app.remark
         copyEntityBean(app, oldApp)
     else:
         # 判断应用名是否重复
