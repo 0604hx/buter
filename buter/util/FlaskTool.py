@@ -1,6 +1,8 @@
 from flask import json
 from flask_sqlalchemy import DeclarativeMeta
 
+from buter import Result
+
 
 class SQLAlchemyEncoder(json.JSONEncoder):
     """
@@ -19,6 +21,7 @@ class SQLAlchemyEncoder(json.JSONEncoder):
 
     定义 Entity 属性时， 不能以 _ 开头、不能以 query、metadata、query_class 作为属性名
     """
+
     def default(self, o):
         if isinstance(o.__class__, DeclarativeMeta):
             data = {}
@@ -31,4 +34,12 @@ class SQLAlchemyEncoder(json.JSONEncoder):
                 except TypeError:
                     data[field] = None
             return data
+        elif isinstance(o, Result):
+            result = {'success': o.success, 'message': o.message}
+            if o.data is not None:
+                result['data'] = o.data
+            if o.success:
+                result['total'] = o.total
+            return result
+
         return json.JSONEncoder.default(self, o)

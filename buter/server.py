@@ -4,18 +4,41 @@
 add on 2017-11-13 17:41:44
 """
 # encoding: utf-8
-import logging
 import traceback
 
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+from buter import Result
 from buter.logger import LOG, initLogger
 from buter.util.FlaskTool import SQLAlchemyEncoder
 from config import configs
 
 # 实例化 DataBase
 db = SQLAlchemy()
+
+
+def buildBlueprint(app):
+    """
+    注册子模块
+    :param app:
+    :return:
+    """
+    if app is None:
+        raise Exception("app must not be None while registering blueprint!")
+
+    from buter.main import mainBp
+    app.register_blueprint(mainBp)
+
+    from buter.app import appBp
+    app.register_blueprint(appBp)
+
+    #
+    # from .auth import auth as auth_blueprint
+    # app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    #
+    # from .api_1_0 import api as api_1_0_blueprint
+    # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
 
 
 def create_app(config_name):
@@ -45,15 +68,7 @@ def create_app(config_name):
     except Exception as e:
         LOG.error("error on try to create all tables", e)
 
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
-
-    #
-    # from .auth import auth as auth_blueprint
-    # app.register_blueprint(auth_blueprint, url_prefix='/auth')
-    #
-    # from .api_1_0 import api as api_1_0_blueprint
-    # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
+    buildBlueprint(app)
 
     @app.route('/')
     def index():
@@ -65,10 +80,7 @@ def create_app(config_name):
 
     @app.errorhandler(404)
     def page_not_found(error):
-        return jsonify({
-            "success": False,
-            "message": '[404] Page not found!'
-        }), 404
+        return jsonify(Result.error('[404] Page not found!')), 404
 
     @app.errorhandler(Exception)
     def global_error_handler(e):
@@ -80,11 +92,7 @@ def create_app(config_name):
         :return:
         """
         LOG.error("%s\n%s", e, traceback.format_exc())
-        return jsonify({
-            "success": False,
-            "message": traceback.format_exc(),
-            "data": str(e)
-        }), 500
+        return jsonify(Result.error(e)), 500
 
     # 定位静态文件夹为上级 static，否则无法正常浏览静态资源
     app.static_folder = configs[config_name].SERVER_STATIC_DIR
