@@ -1,11 +1,11 @@
 from flask import Flask, jsonify
 
 from buter.logger import LOG
-from . import main
+from . import mainBp
 from buter.util import OSUtil
 
 
-@main.route("/heartbeat/<string:data>")
+@mainBp.route("/heartbeat/<string:data>")
 def heartbeat(data):
     """
     心跳测试，直接返回参数
@@ -16,7 +16,7 @@ def heartbeat(data):
     return data
 
 
-@main.route("/info")
+@mainBp.route("/info")
 def sys_info():
     """
 

@@ -10,7 +10,8 @@ env = os.getenv('FLASK_CONFIG') or 'default'
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
+    # default secret-key is md5("buter")
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'a89e59a58758ba121319b40b27f0a755'
 
     '''
     使用 本地 sqlite 数据库

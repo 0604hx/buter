@@ -9,13 +9,13 @@ import traceback
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-from buter import Result
+from buter import Result, ServiceException, CommonQuery
 from buter.logger import LOG, initLogger
 from buter.util.FlaskTool import SQLAlchemyEncoder
 from config import configs
 
 # 实例化 DataBase
-db = SQLAlchemy()
+db = SQLAlchemy(query_class = CommonQuery)
 
 
 def buildBlueprint(app):
@@ -83,16 +83,31 @@ def create_app(config_name):
         return jsonify(Result.error('[404] Page not found!')), 404
 
     @app.errorhandler(Exception)
-    def global_error_handler(e):
+    def global_error_handler(exception):
         """
         全局的异常处理：
         1. 打印到 logger ：以便记录异常信息
         2. 封装成 Result 对象，以 json 格式返回到 Client
-        :param e:
+        :param exception:
         :return:
         """
-        LOG.error("%s\n%s", e, traceback.format_exc())
-        return jsonify(Result.error(e)), 500
+        LOG.error("%s\n%s", exception, traceback.format_exc())
+        return jsonify(Result.error(exception)), 500
+
+    @app.errorhandler(ServiceException)
+    def service_error_handler(exception):
+        LOG.error("%s\n%s", exception, traceback.format_exc())
+        return jsonify(Result.error(exception)), 500
+
+    @app.errorhandler(500)
+    def internal_error_handler(exception):
+        LOG.error("[500] %s\n%s", exception, traceback.format_exc())
+        return jsonify(Result.error(exception)), 500
+
+    @app.errorhandler(400)
+    def internal_error_handler(exception):
+        LOG.error("[400] %s\n%s", exception, traceback.format_exc())
+        return jsonify(Result.error(exception)), 400
 
     # 定位静态文件夹为上级 static，否则无法正常浏览静态资源
     app.static_folder = configs[config_name].SERVER_STATIC_DIR

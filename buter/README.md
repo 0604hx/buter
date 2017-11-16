@@ -1,4 +1,9 @@
-# Buter App
+# BUTER
+
+注：
+
+1. `Controller`统一以 XXXController 的命名格式
+2. Flask 的 BluePrint 以 `xxxBp` 命名格式, 如`mainBp`
 
 ## Logger
 > 日志保存到 `./logs/buter.log` 文件中，默认每天产生一个文件
@@ -17,13 +22,4 @@ LOG_ENCODING = 'utf-8'
 ## Models
 > 此处定义了数据相关的实体类
 
-### Application
-> 应用程序类，表名：app
-
-字段名 | 类型 | 默认值 | 必填 | 备注 
----------|----------|---------|----------|---------
-id|Long| |是|自增ID
-name|String| |是|应用名称
-remark|String| | |应用描述
-addDate|Date| | |录入时间
-
+详见 [/docs/db.md](../docs/db.md)

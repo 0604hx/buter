@@ -1,4 +1,4 @@
-from flask import json
+from flask import json, request
 from flask_sqlalchemy import DeclarativeMeta
 
 from buter import Result
@@ -43,3 +43,13 @@ class SQLAlchemyEncoder(json.JSONEncoder):
             return result
 
         return json.JSONEncoder.default(self, o)
+
+
+def Q(key, default=None,type=None):
+    """
+    从 request 中获取指定的参数
+    :param key:
+    :param default:
+    :return:
+    """
+    return request.values.get(key, default, type)

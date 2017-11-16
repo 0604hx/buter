@@ -34,14 +34,15 @@ class Result:
     def error(e, data=None):
         """
         返回异常信息
-        :param self:
+        :param data:
         :param e:
         :return:
         """
-        if isinstance(e, Exception):
-            return Result(False, traceback.format_exc(), str(e) if data is None else data)
-        else:
-            return Result(False, str(e), data)
+        # if isinstance(e, Exception):
+        #     return Result(False, traceback.format_exc(), str(e) if data is None else data)
+        # else:
+        #     return Result(False, str(e), data)
+        return Result(False, traceback.format_exc(), str(e) if data is None else data)
 
     @staticmethod
     def ok(message: str, data=None):
@@ -52,6 +53,47 @@ class Result:
         :return:
         """
         return Result(True, message, data=data)
+
+
+class ServiceException(Exception):
+    """
+    通用的 service 异常类
+    """
+    code = 500
+
+    def __init__(self, message, code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if code is not None:
+            self.code = code
+        self.payload = payload
+
+    def __str__(self):
+        return "[ServiceException %d]:%s" % (self.code, self.message)
+
+    __repr__ = __str__
+
+
+from flask_sqlalchemy import BaseQuery
+
+
+class CommonQuery(BaseQuery):
+    def getOr(self, id, default=None):
+        """
+
+        :param id:
+        :param default:
+        :return:
+        """
+        return self.get(id) or default
+
+    def getOne(self, **kwargs):
+        """
+
+        :param kwargs:
+        :return:
+        """
+        return self.filter_by(**kwargs).first()
 
 
 from .models import *
