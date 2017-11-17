@@ -1,3 +1,18 @@
+"""
+
+"""
+
+
+def notEmptyStr(**kwargs):
+    """
+    全部参数都不能为空
+    :param kwargs:
+    :return:
+    """
+    for k in kwargs:
+        if not (kwargs[k] and kwargs[k].strip()):
+            print(k, ' must not be empty')
+            raise RuntimeError("%s should not be empty" % k)
 
 
 def copyBean(origin, dest, fields=None, ignoreNone=True, ignoreFields=[]):

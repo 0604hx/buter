@@ -9,7 +9,7 @@ from flask import jsonify, request
 
 from buter import Result, db, ServiceException
 from buter.logger import LOG
-from buter.util.Utils import copyEntityBean
+from buter.util.Utils import copyEntityBean, notEmptyStr
 from . import appBp
 from ..models import Application
 
@@ -40,11 +40,7 @@ def add():
 
     id = ps.get('id')
 
-    app = Application(
-        name=name,
-        id=id,
-        version=version,
-        remark=ps.get('remark'))
+    app = Application(name=name, id=id, version=version, remark=ps.get('remark'))
 
     if id and int(id) > 0:
         oldApp = Application.query.get(id)
@@ -72,8 +68,16 @@ def add():
     )
 
 
-def notEmptyStr(**kwargs):
-    for k in kwargs:
-        if not (kwargs[k] and kwargs[k].strip()):
-            print(k, ' must not be empty')
-            raise RuntimeError("%s should not be empty" % k)
+@appBp.route("/delete/<int:id>")
+def delete(id):
+    LOG.info("客户端请求删除 ID=%d 的应用..." % id)
+
+    app = Application.query.get(id)
+    if app:
+        db.session.delete(app)
+        db.session.commit()
+        LOG.info("删除 ID=%d 的应用成功" % id)
+        return jsonify(Result.ok())
+    else:
+        raise ServiceException("ID=%d 的应用不存在故不能执行删除操作..." % id)
+

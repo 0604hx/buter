@@ -36,7 +36,9 @@ class SQLAlchemyEncoder(json.JSONEncoder):
             return data
         elif isinstance(o, Result):
             '''处理 Result，如果 success = False，则忽略 total 属性'''
-            result = {'success': o.success, 'message': o.message}
+            result = {'success': o.success}
+            if o.message:
+                result['message'] = o.message
             if o.data is not None:
                 result['data'] = o.data
             if o.success:

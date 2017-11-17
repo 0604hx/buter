@@ -45,7 +45,7 @@ class Result:
         return Result(False, traceback.format_exc(), str(e) if data is None else data)
 
     @staticmethod
-    def ok(message: str, data=None):
+    def ok(message: str=None, data=None):
         """
         返回成功信息
         :param data:
