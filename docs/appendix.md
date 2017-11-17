@@ -2,6 +2,17 @@
 
 ## 遇到问题
 
+### 数据库加密
+
+`buter`默认使用 `sqlite` 做为数据库且未对数据进行加密，如果有加密需求可以参考以下资源：
+
+[sqlcipher](https://github.com/sqlcipher/sqlcipher)
+
+[pysqlcipher](https://github.com/leapcode/pysqlcipher/)
+
+[encrypted-sqlite-databases-with-python-and-sqlcipher](http://charlesleifer.com/blog/encrypted-sqlite-databases-with-python-and-sqlcipher/)
+
+
 ### jsonify(Entity 对象) 报错：is not JSON serializable
 
 [flask-jsonify-a-list-of-objects](https://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects)

@@ -50,6 +50,13 @@ class Config:
     LOG_BACKUP = 15
     LOG_ENCODING = 'utf-8'
 
+    '''
+    Docker 配置
+    '''
+    DOCKER_HOST = None
+    DOCKER_CERT_PATH = None
+    DOCKER_TLS_VERIFY = None
+
     @staticmethod
     def init_app(app):
         pass
@@ -60,6 +67,15 @@ class DevelopmentConfig(Config):
     开发环境下的配置，如果没有指定则作为默认配置
     """
     LOG_FILE = None
+
+    '''
+    Docker 配置
+    开发环境下使用的是 docker-toolbox 运行的 docker-server
+    '''
+    DOCKER_HOST = "tcp://192.168.99.100:2376"
+    DOCKER_CERT_PATH = "C:\\Users\\Administrator\\.docker\\machine\\certs"
+    DOCKER_TLS_VERIFY = "1"
+
 
 class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///"+os.path.join(basedir, "buter-test.db")
