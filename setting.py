@@ -12,6 +12,5 @@ MySQL   ：   mysql://scott:tiger@localhost/foo
 Oracle  ：   oracle://scott:tiger@127.0.0.1:1521/sidname
 更多配置请看      ：http://docs.sqlalchemy.org/en/latest/core/engines.html
 '''
-SQLALCHEMY_DATABASE_URI = "sqlite:///buter.db"
-SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-SQLALCHEMY_TRACK_MODIFICATIONS = True
+SQLALCHEMY_DATABASE_URI = "sqlite:///buter-from-setting.db"
+SQLALCHEMY_TEST = True

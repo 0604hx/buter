@@ -6,13 +6,16 @@ add on 2017-11-13 17:41:44
 # encoding: utf-8
 import traceback
 
+import sys
+
+import os
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 from buter import Result, ServiceException, CommonQuery
 from buter.logger import LOG, initLogger
 from buter.util.FlaskTool import SQLAlchemyEncoder
-from config import configs
+from config import getConfig
 
 # 实例化 DataBase
 db = SQLAlchemy(query_class = CommonQuery)
@@ -42,11 +45,20 @@ def buildBlueprint(app):
 
 
 def create_app(config_name):
-    config = configs[config_name]
+    config = getConfig(config_name)
 
     initLogger(config)
 
-    app = Flask(__name__, static_url_path='')
+    # if getattr(sys, 'frozen', False):
+    #     print("------------------ pyinstaller",os.path.join(sys.executable))
+    #     print(os.path.join(os.path.dirname(sys.executable), 'static'))
+    #     app = Flask(__name__,
+    #                 static_folder=os.path.join(os.path.dirname(sys.executable), 'static'),
+    #                 template_folder=os.path.join(os.path.dirname(sys.executable), 'templates')
+    #                 )
+    # else:
+    #     app = Flask(__name__, static_folder=config.SERVER_STATIC_DIR)
+    app = Flask(__name__, static_folder=config.SERVER_STATIC_DIR)
 
     # What it does is prepare the application to work with SQLAlchemy.
     # However that does not now bind the SQLAlchemy object to your application.
@@ -110,6 +122,6 @@ def create_app(config_name):
         return jsonify(Result.error(exception)), 400
 
     # 定位静态文件夹为上级 static，否则无法正常浏览静态资源
-    app.static_folder = configs[config_name].SERVER_STATIC_DIR
+    # app.static_folder = configs[config_name].SERVER_STATIC_DIR
 
     return app, config

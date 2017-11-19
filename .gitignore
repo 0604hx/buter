@@ -6,3 +6,8 @@ __pycache__
 buter*.db
 
 logs/
+build/
+dist/
+
+# discard spec file for pyinstaller
+buter.spec
