@@ -28,21 +28,27 @@ FILE = '-F'
 ICON = 'icon_128x128.ico'
 KEEP = False
 
+
+def show_info():
+    print("""
+    欢迎使用 buter package program:
+    ==================================================================
+    -h      才开始用帮助，关于 pyinstaller 的更多参数请看这里：https://pyinstaller.readthedocs.io/en/stable/usage.html
+    -d      使用 one-folder 模式，否则使用 one-file
+    -i      执行图标文件，默认使用 icon_128x128.ico
+    -v      版本信息文件（只针对 windows 平台）
+    -k      打包完成后保留 build 目录，默认在打包 2 秒后删除此文件夹
+    --upx   upx.exe 所在目录
+    ==================================================================
+
+    last modified on 2017-11-20 10:58:53
+    """)
+
+
+show_info()
+
 for op, value in opts:
     if op == '-h':
-        print("""
-        欢迎使用 buter package program:
-        ==================================================================
-        -h      才开始用帮助，关于 pyinstaller 的更多参数请看这里：https://pyinstaller.readthedocs.io/en/stable/usage.html
-        -d      使用 one-folder 模式，否则使用 one-file
-        -i      执行图标文件，默认使用 icon_128x128.ico
-        -v      版本信息文件（只针对 windows 平台）
-        -k      打包完成后保留 build 目录，默认在打包 2 秒后删除此文件夹
-        --upx   upx.exe 所在目录
-        ==================================================================
-        
-        last modified on 2017-11-20 10:58:53
-        """)
         sys.exit()
 
     if op == '-d':

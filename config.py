@@ -131,10 +131,12 @@ def getConfig(name=None):
     setting_file = getPath(SETTING_FILE+".py")
     print("settingFile=", setting_file)
     if os.path.exists(setting_file):
+        sys.path.append(BASE_DIR)
         customSettings = __import__(SETTING_FILE)
         for s in [s for s in dir(customSettings) if not s.startswith("__")]:
-            print("replace or setting {:25} to {}".format(s, customSettings.__getattribute__(s)))
-            setattr(config, s, customSettings.__getattribute__(s))
+            value = customSettings.__getattribute__(s)
+            print("replace or setting {:25} to {}".format(s, value))
+            setattr(config, s, value)
 
     return config
 
