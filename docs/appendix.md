@@ -29,6 +29,8 @@
 
 [断网环境下利用pip安装Python离线安装包](https://www.cnblogs.com/michael-xiang/p/5690746.html)
 
+[pyinstaller打包pyqt文件](https://www.cnblogs.com/dcb3688/p/4211390.html)
+
 ### 开源项目
 
 [fsblog：基于Flask的个人开源博客](https://gitee.com/megadata/fsblog)

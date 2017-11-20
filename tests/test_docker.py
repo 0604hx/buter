@@ -30,6 +30,14 @@ class DockerTestCase(unittest.TestCase):
         self.client = docker.from_env()
         # self.client = docker.APIClient()
 
+    """
+    从特定的 tar 文件加载 docker image
+    """
+    def test_image_load(self):
+        f = open("G:/alpine.latest.tar", 'rb+')
+        self.client.images.load(f.read())
+        f.close()
+
     def test_images(self):
         images = self.client.images.list()
         print(images)

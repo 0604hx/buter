@@ -3,8 +3,6 @@ Application 控制器
 
 add on 2017-11-14 16:46:35
 """
-from copy import copy
-
 from flask import jsonify, request
 
 from buter import Result, db, ServiceException

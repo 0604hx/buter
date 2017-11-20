@@ -55,7 +55,7 @@ def create_app(config_name):
     #                 )
     # else:
     #     app = Flask(__name__, static_folder=config.SERVER_STATIC_DIR)
-    app = Flask(__name__, static_folder=config.SERVER_STATIC_DIR)
+    app = Flask(__name__, static_url_path='', static_folder=config.SERVER_STATIC_DIR)
 
     # What it does is prepare the application to work with SQLAlchemy.
     # However that does not now bind the SQLAlchemy object to your application.
@@ -87,10 +87,10 @@ def create_app(config_name):
         LOG.debug("visit index page %s", config.SERVER_INDEX_PAGE)
         return app.send_static_file(config.SERVER_INDEX_PAGE)
 
-    @app.route('/<path:path>')
-    # @app.route('/static/<path:path>')
-    def static_resource(path):
-        return send_from_directory(config.SERVER_STATIC_DIR, path)
+    # @app.route('/<path:file_relative_path_to_root>', methods=['GET'])
+    # # @app.route('/static/<path:path>')
+    # def static_resource(path):
+    #     return send_from_directory(config.SERVER_STATIC_DIR, path)
 
     @app.errorhandler(404)
     def page_not_found(error):
