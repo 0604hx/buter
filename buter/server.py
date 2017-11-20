@@ -6,10 +6,7 @@ add on 2017-11-13 17:41:44
 # encoding: utf-8
 import traceback
 
-import sys
-
-import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 
 from buter import Result, ServiceException, CommonQuery
@@ -90,6 +87,11 @@ def create_app(config_name):
         LOG.debug("visit index page %s", config.SERVER_INDEX_PAGE)
         return app.send_static_file(config.SERVER_INDEX_PAGE)
 
+    @app.route('/<path:path>')
+    # @app.route('/static/<path:path>')
+    def static_resource(path):
+        return send_from_directory(config.SERVER_STATIC_DIR, path)
+
     @app.errorhandler(404)
     def page_not_found(error):
         return jsonify(Result.error('[404] Page not found!')), 404
@@ -122,6 +124,6 @@ def create_app(config_name):
         return jsonify(Result.error(exception)), 400
 
     # 定位静态文件夹为上级 static，否则无法正常浏览静态资源
-    # app.static_folder = configs[config_name].SERVER_STATIC_DIR
+    # app.static_folder = '../static'
 
     return app, config
