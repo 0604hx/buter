@@ -14,6 +14,8 @@
 
 * [pyInstaller](http://www.pyinstaller.org)
 
+更多 `pyInstaller` 的说明详见[这里](https://pyinstaller.readthedocs.io/en/stable/usage.html)
+
 ## LOGS
 
 ### 0.0.1

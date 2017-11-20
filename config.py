@@ -1,24 +1,29 @@
 """
 系统配置项
 """
-import imp
-import importlib
 import os
 import logging
 
 import sys
 
 env = os.getenv('FLASK_CONFIG') or 'default'
+
 # 对于 windows 系统，docker 相关的配置有所不同
 IS_WINDOWS = (sys.platform == 'win32')
+
+#
 # 如果是 pyinstaller 打包后的程序（单文件），需要判断 frozen 属性
+# 详见：https://pyinstaller.readthedocs.io/en/stable/runtime-information.html
+#
 IS_PYINSTALLER = (getattr(sys, 'frozen', False) == True)
+
 # 获取程序的根目录，后续可以设置 日志、数据库文件的 目录
 BASE_DIR = os.path.dirname(sys.executable) \
     if IS_PYINSTALLER \
     else os.path.abspath(os.path.dirname(__file__))
 
 SETTING_FILE = "setting"
+
 
 def getPath(name):
     """
