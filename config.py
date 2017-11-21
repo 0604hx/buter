@@ -129,8 +129,8 @@ def getConfig(name=None):
     判断根目录下是否有 setting.py ，如果有则自动加载此文件
     '''
     setting_file = getPath(SETTING_FILE+".py")
-    print("settingFile=", setting_file)
     if os.path.exists(setting_file):
+        print("detected setting.py exist, try to use it...")
         sys.path.append(BASE_DIR)
         customSettings = __import__(SETTING_FILE)
         for s in [s for s in dir(customSettings) if not s.startswith("__")]:
