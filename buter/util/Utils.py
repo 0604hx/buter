@@ -1,6 +1,9 @@
 """
 
 """
+import zipfile
+
+import os
 
 
 def notEmptyStr(**kwargs):
@@ -42,3 +45,25 @@ def copyEntityBean(origin, dest, fields=None):
     :return:
     """
     copyBean(origin, dest, fields, ignoreNone=True, ignoreFields=['id', 'metadata', 'query', 'query_class'])
+
+
+def unzip(file_path: str, target_dir=None):
+    """
+    解压 zip 文件
+    :param file_path:
+    :param target_dir:  解压目录，如果不指定则默认解压到 file_pth_unzip 下
+    :return:
+    """
+    zip_files = zipfile.ZipFile(file_path)
+
+    tmp_file = (file_path + "_unzip") if target_dir is None else target_dir
+    if os.path.isdir(tmp_file):
+        pass
+    else:
+        os.mkdir(tmp_file)
+
+    files = zip_files.namelist()
+    for name in files:
+        zip_files.extract(name, tmp_file)
+
+    return tmp_file, files

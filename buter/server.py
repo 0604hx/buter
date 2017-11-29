@@ -6,16 +6,18 @@ add on 2017-11-13 17:41:44
 # encoding: utf-8
 import traceback
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 from buter import Result, ServiceException, CommonQuery
 from buter.logger import LOG, initLogger
+from buter.util.Docker import DockerApi
 from buter.util.FlaskTool import SQLAlchemyEncoder
 from config import getConfig
 
 # 实例化 DataBase
-db = SQLAlchemy(query_class = CommonQuery)
+db = SQLAlchemy(query_class=CommonQuery)
+docker = DockerApi()
 
 
 def buildBlueprint(app):
@@ -41,10 +43,21 @@ def buildBlueprint(app):
     # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
 
 
+def init_docker(config):
+    try:
+        docker.setup(config)
+        LOG.info("docker client setup done: \n %s", docker.version())
+    except Exception as e:
+        LOG.error("cannot connection to Docker Server , please check your config...")
+        raise e
+
+
 def create_app(config_name):
     config = getConfig(config_name)
 
     initLogger(config)
+
+    init_docker(config)
 
     # if getattr(sys, 'frozen', False):
     #     print("------------------ pyinstaller",os.path.join(sys.executable))

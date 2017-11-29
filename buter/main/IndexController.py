@@ -1,8 +1,9 @@
-from flask import Flask, jsonify
+from flask import jsonify
 
 from buter.logger import LOG
-from . import mainBp
+from buter.server import docker
 from buter.util import OSUtil
+from . import mainBp
 
 
 @mainBp.route("/heartbeat/<string:data>")
@@ -24,7 +25,7 @@ def sys_info():
     """
     info = {
         'system': OSUtil.getOSInfo(),
-        'docker': OSUtil.getDockerInfo(),
+        'docker': docker.version(),
         'python': OSUtil.getPythonInfo()
     }
     return jsonify(info)
