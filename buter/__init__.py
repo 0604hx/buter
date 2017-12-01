@@ -4,6 +4,9 @@ add on 2017-11-13 17:39:50
 """
 import traceback
 
+from buter.util.Utils import formatDate
+from config import BASE_DIR
+
 
 class Result:
     """
@@ -97,3 +100,16 @@ class CommonQuery(BaseQuery):
 
 
 from .models import *
+
+
+def getAttachPath(file_name):
+    """
+    获取附件的保存目录， 格式为： BASE_DIR/attachments/YYYYMM/file_name
+    :param file_name:
+    :return:
+    """
+    dir_ = "%s/attachments/%s" % (BASE_DIR, formatDate(formatter="%Y%m"))
+    if not os.path.exists(dir_):
+        os.makedirs(dir_)
+
+    return "%s/%s" % (dir, file_name)

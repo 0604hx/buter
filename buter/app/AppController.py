@@ -5,11 +5,14 @@ add on 2017-11-14 16:46:35
 """
 from flask import jsonify, request
 
-from buter import Result, db, ServiceException
+from buter import Result, db, ServiceException, getAttachPath
 from buter.logger import LOG
+from buter.util.FlaskTool import Q
 from buter.util.Utils import copyEntityBean, notEmptyStr
+import buter.app.services as services
+
 from . import appBp
-from ..models import Application
+from ..models import Application, Resource
 
 
 @appBp.route("/")
@@ -79,3 +82,46 @@ def delete(id):
     else:
         raise ServiceException("ID=%d 的应用不存在故不能执行删除操作..." % id)
 
+
+@appBp.route("/upload", methods=['POST'])
+def uploadNewVersion():
+    """
+    上传 app 新版本资源
+
+    1. 若 app 存在（request.id > 0)
+        从数据库中获取对应的 app
+
+    2. 若 app 不存在（request.id=0）
+        则 request.name 不能为空
+        创建新的 app
+
+    :return:
+    """
+    file = request.files['file']
+    if file is None:
+        raise ServiceException("无法检测到文件，请先上传")
+
+    app = __detect_app()
+    auto_create = app.id is None
+    if auto_create:
+        db.session.add(app)
+
+    # 保存文件到 attachments 目录
+    saved_file = file.save(getAttachPath(file.filename))
+    resource = Resource.fromFile(saved_file, app)
+    db.session.add(resource)
+
+    name, files = services.load_from_file(saved_file, app, Q('update', False, bool))
+
+    db.session.commit()
+    return jsonify(Result.ok("%s 应用新版本部署成功" % name, files))
+
+
+def __detect_app():
+    aid = Q('id', 0, int)
+    if aid == 0:
+        name = Q('name')
+        notEmptyStr(name=name)
+        return Application(name=name)
+    else:
+        return Application.query.get(aid)

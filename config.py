@@ -81,6 +81,8 @@ class Config:
     DOCKER_HOST = None
     DOCKER_CERT_PATH = None
     DOCKER_TLS_VERIFY = None
+    # 设置此值为 False 则不会连接到 Docker server
+    DOCKER_ABLE = True
 
     @staticmethod
     def init_app(app):
@@ -98,7 +100,7 @@ class DevelopmentConfig(Config):
     开发环境下使用的是 docker-toolbox 运行的 docker-server
     '''
     if IS_WINDOWS:
-        print("detected Buter running on windows, DOCKER configuration will set around this platform...")
+        print("detected Buter running on windows, DOCKER configuration will set around this platform...\n")
         DOCKER_HOST = "tcp://192.168.99.100:2376"
         DOCKER_CERT_PATH = "C:\\Users\\Administrator\\.docker\\machine\\certs"
         DOCKER_TLS_VERIFY = "1"
@@ -122,7 +124,7 @@ configs = {
 }
 
 
-def getConfig(name=None):
+def getConfig(name=None, customs=None):
     config = configs[env if name is None else name]
 
     '''
@@ -135,6 +137,12 @@ def getConfig(name=None):
         customSettings = __import__(SETTING_FILE)
         for s in [s for s in dir(customSettings) if not s.startswith("__")]:
             value = customSettings.__getattribute__(s)
+            print("replace or setting {:25} to {}".format(s, value))
+            setattr(config, s, value)
+
+    if customs is not None and isinstance(customs, dict):
+        for s in [s for s in customs.keys() if not s.startswith("__")]:
+            value = customs.get(s)
             print("replace or setting {:25} to {}".format(s, value))
             setattr(config, s, value)
 

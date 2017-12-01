@@ -58,6 +58,25 @@ class DockerApi:
         self.client.images.load(file.read())
         file.close()
 
+    def createContainer(self, image, command=None, args={}):
+        """
+        参考 dockerClient.create() 方法
+        :param args:
+        :param image:
+        :param command:
+        :return:
+        """
+        return self.client.containers.create(image, command, **args)
+
+    def removeContainerByName(self, name: str):
+        return self.client.containers.prune({name: name})
+
+    def removeContainerById(self, cid):
+        return self.client.containers.prune({id: cid})
+
+    def getContainer(self, id_or_name):
+        return self.client.containers.get(id_or_name)
+
 
 def init_docker(config):
     return DockerApi(config)

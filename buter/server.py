@@ -52,22 +52,14 @@ def init_docker(config):
         raise e
 
 
-def create_app(config_name):
-    config = getConfig(config_name)
+def create_app(config_name, customs=None):
+    config = getConfig(config_name, customs)
 
     initLogger(config)
 
-    init_docker(config)
+    if config.DOCKER_ABLE:
+        init_docker(config)
 
-    # if getattr(sys, 'frozen', False):
-    #     print("------------------ pyinstaller",os.path.join(sys.executable))
-    #     print(os.path.join(os.path.dirname(sys.executable), 'static'))
-    #     app = Flask(__name__,
-    #                 static_folder=os.path.join(os.path.dirname(sys.executable), 'static'),
-    #                 template_folder=os.path.join(os.path.dirname(sys.executable), 'templates')
-    #                 )
-    # else:
-    #     app = Flask(__name__, static_folder=config.SERVER_STATIC_DIR)
     app = Flask(__name__, static_url_path='', static_folder=config.SERVER_STATIC_DIR)
 
     # What it does is prepare the application to work with SQLAlchemy.

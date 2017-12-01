@@ -5,6 +5,8 @@ import zipfile
 
 import os
 
+import time
+
 
 def notEmptyStr(**kwargs):
     """
@@ -67,3 +69,7 @@ def unzip(file_path: str, target_dir=None):
         zip_files.extract(name, tmp_file)
 
     return tmp_file, files
+
+
+def formatDate(dt=None, formatter="%Y%m%d%H%M%S"):
+    return time.strftime(formatter, dt if dt is not None else time.localtime())
