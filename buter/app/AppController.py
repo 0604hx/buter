@@ -6,10 +6,10 @@ add on 2017-11-14 16:46:35
 from flask import jsonify, request
 
 from buter import Result, db, ServiceException, getAttachPath
+from buter.app import services
 from buter.logger import LOG
 from buter.util.FlaskTool import Q
 from buter.util.Utils import copyEntityBean, notEmptyStr
-import buter.app.services as services
 
 from . import appBp
 from ..models import Application, Resource

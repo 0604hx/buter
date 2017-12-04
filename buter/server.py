@@ -49,7 +49,7 @@ def init_docker(config):
         LOG.info("docker client setup done: \n %s", docker.version())
     except Exception as e:
         LOG.error("cannot connection to Docker Server , please check your config...")
-        raise e
+        LOG.error("检测到 Docker 配置有误，请重新配置否则无法正常使用相关的功能")
 
 
 def create_app(config_name, customs=None):
