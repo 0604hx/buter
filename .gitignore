@@ -9,5 +9,7 @@ logs/
 build/
 dist/
 
+attachments/
+
 # discard spec file for pyinstaller
 buter.spec

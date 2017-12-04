@@ -58,21 +58,39 @@ class DockerApi:
         self.client.images.load(file.read())
         file.close()
 
-    def createContainer(self, image, command=None, args={}):
+    def createContainer(self, image, name=None, command=None, args={}):
         """
         参考 dockerClient.create() 方法
+        :param name:
         :param args:
         :param image:
         :param command:
         :return:
         """
+        if name is not None:
+            # 如果容器名不为空，则默认为 label 增加一个值，方便以后删除
+            if "labels" in args:
+                if isinstance(args['labels'], dict):
+                    args['labels']['name'] = name
+                elif isinstance(args['labels'], list):
+                    args['labels'].append(name)
+            else:
+                args['labels'] = [name]
         return self.client.containers.create(image, command, **args)
 
     def removeContainerByName(self, name: str):
-        return self.client.containers.prune({name: name})
+        """
+        对于 docker 17.0.6+ 的版本，不支持 通过 name、id 等参数删除容器
+        详见：https://github.com/docker/docker-py/issues/1680
 
-    def removeContainerById(self, cid):
-        return self.client.containers.prune({id: cid})
+        解决方案：
+            为容器添加统一的 label：{容器名称}
+            继而通过 label={名称} 来删除指定的容器
+
+        :param name:
+        :return:
+        """
+        return self.client.containers.prune({"label": name})
 
     def getContainer(self, id_or_name):
         return self.client.containers.get(id_or_name)

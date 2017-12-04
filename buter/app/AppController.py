@@ -20,10 +20,15 @@ def index():
     return "Hello, welcome to application index page"
 
 
-@appBp.route("/list")
+@appBp.route("/<int:aid>")
+def detail(aid):
+    return jsonify(Application.query.get(aid))
+
+
+@appBp.route("/list", methods=['GET', 'POST'])
 def lists():
     datas = Application.query.all()
-    return jsonify(datas)
+    return jsonify(Result.ok(data=datas))
 
 
 @appBp.route("/edit", methods=['GET', 'POST'])
@@ -35,7 +40,7 @@ def add():
     """
     ps = request.values
     name = ps.get('name')
-    version = ps.get('version')
+    version = ps.get('version', default="1.0.0")
 
     notEmptyStr(name=name, version=version)
 
@@ -69,18 +74,20 @@ def add():
     )
 
 
-@appBp.route("/delete/<int:id>")
-def delete(id):
-    LOG.info("客户端请求删除 ID=%d 的应用..." % id)
+@appBp.route("/delete", methods=['GET', 'POST'])
+@appBp.route("/delete/<aid>", methods=['GET', 'POST'])
+def delete(aid=None):
+    aid = aid if aid is not None else Q('ids', type=int)
+    LOG.info("客户端请求删除 ID=%d 的应用..." % aid)
 
-    app = Application.query.get(id)
+    app = Application.query.get(aid)
     if app:
         db.session.delete(app)
         db.session.commit()
-        LOG.info("删除 ID=%d 的应用成功" % id)
+        LOG.info("删除 ID=%d 的应用成功" % aid)
         return jsonify(Result.ok())
     else:
-        raise ServiceException("ID=%d 的应用不存在故不能执行删除操作..." % id)
+        raise ServiceException("ID=%d 的应用不存在故不能执行删除操作..." % aid)
 
 
 @appBp.route("/upload", methods=['POST'])
@@ -107,7 +114,9 @@ def uploadNewVersion():
         db.session.add(app)
 
     # 保存文件到 attachments 目录
-    saved_file = file.save(getAttachPath(file.filename))
+    saved_file = getAttachPath(file.filename)
+    LOG.info("上传 %s 到 %s" % (file.filename, saved_file))
+    file.save(saved_file)
     resource = Resource.fromFile(saved_file, app)
     db.session.add(resource)
 
@@ -120,8 +129,8 @@ def uploadNewVersion():
 def __detect_app():
     aid = Q('id', 0, int)
     if aid == 0:
-        name = Q('name')
-        notEmptyStr(name=name)
-        return Application(name=name)
+        name, version = Q('name'), Q('version', '1.0.0')
+        notEmptyStr(name=name, version=version)
+        return Application(name=name, version=version)
     else:
         return Application.query.get(aid)

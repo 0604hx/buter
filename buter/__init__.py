@@ -45,7 +45,7 @@ class Result:
         #     return Result(False, traceback.format_exc(), str(e) if data is None else data)
         # else:
         #     return Result(False, str(e), data)
-        return Result(False, traceback.format_exc(), str(e) if data is None else data)
+        return Result(False, data=traceback.format_exc(), message=str(e) if data is None else data)
 
     @staticmethod
     def ok(message: str=None, data=None):
@@ -112,4 +112,4 @@ def getAttachPath(file_name):
     if not os.path.exists(dir_):
         os.makedirs(dir_)
 
-    return "%s/%s" % (dir, file_name)
+    return "%s/%s" % (dir_, file_name)

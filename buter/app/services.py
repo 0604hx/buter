@@ -67,12 +67,14 @@ def load_from_file(file_path: str, application:Application, update=False,  **kwa
             # 判断是否需要移除旧的 container
             if kwargs.pop("remove", True):
                 try:
-                    docker.getContainer(container_name)
+                    old_container = docker.getContainer(container_name)
+                    LOG.info("name={} 的容器已经存在：{}, id={}".format(container_name, old_container, old_container.id))
                     docker.removeContainerByName(container_name)
+                    LOG.info("成功删除name=%s 的容器" % container_name)
                 except Exception as e:
-                    LOG.error("无法删除 name=%s 的容器： %s", str(e))
+                    LOG.error("无法删除 name={} 的容器： {}".format(container_name, str(e)))
 
-            docker.createContainer(app_ps['image'], app_ps['cmd'], app_ps['args'])
+            docker.createContainer(app_ps['image'], container_name, app_ps['cmd'], app_ps['args'])
             LOG.info("APP 容器 创建成功（image=%s，name=%s）" % (app_ps['image'], container_name))
 
     shutil.rmtree(unzip_dir)
