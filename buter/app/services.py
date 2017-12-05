@@ -18,6 +18,63 @@ TAR = ".tar"
 RUN_TXT = "run.txt"
 APP_JSON = "app.json"
 
+OPERATIONS = ["start", "stop", "restart", "delete"]
+
+
+def list_all_container(toDict=False):
+    """
+    获取全部的容器信息，默认返回 list[dict]:
+    [
+        {'name': 'tidb', 'id': '438c122c2c', 'labels': {'tidb': ''}, 'stat': 'exited'}
+    ]
+    如果 toDict 为 True，则返回：
+    {
+        'tidb': {'id': '438c122c2c', 'labels': {'tidb': ''}, 'stat': 'exited'}
+    }
+    :param toDict:
+    :return:
+    """
+    containers = docker.listContainer()
+    if toDict:
+        return dict((c.name, {"id": c.short_id, "labels": c.labels, "stat": c.status}) for c in containers)
+    else:
+        return [{"name": c.name, "id": c.short_id, "labels": c.labels, "stat": c.status} for c in containers]
+
+
+def do_with_container(name, op):
+    """
+    对特定容器进行 start、stop、restart 操作
+    :param name:
+    :param op:
+    :return:
+    """
+    try:
+        container = docker.getContainer(name)
+    except Exception:
+        raise ServiceException("容器 {} 不存在".format(name))
+    stat = container.status
+
+    def breakOfStatus():
+        invalids = {
+            OPERATIONS[0]: ["running", "restarting"],
+            OPERATIONS[1]: ['paused', 'exited', 'created'],
+            OPERATIONS[2]: [],
+            OPERATIONS[3]: ["running", "restarting"]
+        }
+        if stat in invalids[op]:
+            raise ServiceException("容器 {} 状态为 {} 而不能进行 {} 操作".format(name, stat, op))
+
+    breakOfStatus()
+
+    if op == OPERATIONS[0]:
+        container.start()
+    elif op == OPERATIONS[1]:
+        container.stop()
+    elif op == OPERATIONS[2]:
+        container.restart()
+    else:
+        container.remove()
+
 
 def load_from_file(file_path: str, application:Application, update=False,  **kwargs):
     """
@@ -57,10 +114,14 @@ def load_from_file(file_path: str, application:Application, update=False,  **kwa
 
         if file == APP_JSON:
             with open(os.path.join(unzip_dir, file)) as app_json:
-                content = app_json.read()
-                LOG.info("获取 %s ：%s" % (RUN_TXT, content))
+                content = __transform_placeholder(app_json.read(), application)
+                LOG.info("获取并填充 %s ：%s" % (RUN_TXT, content))
 
                 app_ps = json.loads(content)
+                if 'args' not in app_ps:
+                    app_ps['args'] = {}
+                if 'image' not in app_ps:
+                    raise ServiceException("{} 中必须定义 'image' 属性，否则无法创建容器".format(APP_JSON))
 
             container_name = detect_app_name(app_ps['args'], app_ps['image'])
 
@@ -69,7 +130,9 @@ def load_from_file(file_path: str, application:Application, update=False,  **kwa
                 try:
                     old_container = docker.getContainer(container_name)
                     LOG.info("name={} 的容器已经存在：{}, id={}".format(container_name, old_container, old_container.id))
-                    docker.removeContainerByName(container_name)
+
+                    old_container.remove()
+                    # docker.removeContainerByName(container_name)
                     LOG.info("成功删除name=%s 的容器" % container_name)
                 except Exception as e:
                     LOG.error("无法删除 name={} 的容器： {}".format(container_name, str(e)))
@@ -119,6 +182,6 @@ def __transform_placeholder(content: str, app: Application):
     :return:
     """
     return content\
-        .replace("#app.id#", app.id)\
+        .replace("#app.id#", str(app.id))\
         .replace("#app.name#", app.name)\
         .replace("#app.path#", detect_app_dir(app))

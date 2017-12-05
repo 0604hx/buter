@@ -90,6 +90,34 @@ def delete(aid=None):
         raise ServiceException("ID=%d 的应用不存在故不能执行删除操作..." % aid)
 
 
+@appBp.route("/stats", methods=['GET', 'POST'])
+def stats():
+    """
+    查看应用状态，接受的参数为`name=n1,n2,n3`
+
+    //查询成功返回示例
+    {
+        "success":true,
+        "data":{
+            "name1":-1,
+            "name2":0,
+            "name3":1
+        }
+    }
+    //查询失败返回示例
+    {
+        "success":false,
+        "message":"无法查询容器状态，请检查 Docker 是否运行"
+    }
+    :return:
+    """
+    names = Q('names', "", str).split(",")
+    containers = services.list_all_container(True)
+    LOG.info("当前所有容器状态：%s", containers)
+    data = dict((n, -1 if n not in containers else 1 if containers[n]['stat'] == 'running' else 0) for n in names)
+    return jsonify(Result.ok(data=data))
+
+
 @appBp.route("/upload", methods=['POST'])
 def uploadNewVersion():
     """
@@ -124,6 +152,16 @@ def uploadNewVersion():
 
     db.session.commit()
     return jsonify(Result.ok("%s 应用新版本部署成功" % name, files))
+
+
+@appBp.route("/operate/<name>/<op>", methods=['GET', 'POST'])
+def operate(name, op):
+    if op not in services.OPERATIONS:
+        raise ServiceException("无效的操作类型：{} (可宣传组：{})".format(op, services.OPERATIONS))
+
+    LOG.info("即将对容器 %s 执行 %s 操作...", name, op)
+    services.do_with_container(name, op)
+    return jsonify(Result.ok("{} 执行 {} 操作成功".format(name, op)))
 
 
 def __detect_app():

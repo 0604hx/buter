@@ -40,6 +40,16 @@ class AppServiceTest(unittest.TestCase):
         file_path = "G:/test/test.zip"
         unzip(file_path, "G:/test")
 
+    def test_list_container(self):
+        containers = docker.listContainer()
+        print(containers)
+        for c in containers:
+            print("container: name={}, id={} ({}), labels={}, stat={}"
+                  .format(c.name, c.id, c.short_id, c.labels, c.status))
+        print([{"name": c.name, "id": c.short_id, "labels": c.labels, "stat": c.status} for c in containers])
+        cs = dict((c.name, {"id": c.short_id, "labels": c.labels, "stat": c.status}) for c in containers)
+        print(cs)
+
 
 if __name__ == '__main__':
     unittest.main()

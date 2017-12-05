@@ -46,7 +46,10 @@ class DockerApi:
         }
         :return:
         """
-        return self.client.version()
+        try:
+            return self.client.version()
+        except Exception:
+            return {"error": "无法获取 docker 版本信息，请检查服务端配置"}
 
     def loadImage(self, tar_file: str):
         """
@@ -76,6 +79,13 @@ class DockerApi:
                     args['labels'].append(name)
             else:
                 args['labels'] = [name]
+
+        # 默认以 后台模式 运行
+        if 'stdin_open' not in args:
+            args['stdin_open'] = True
+        if 'detach' not in args:
+            args['detach'] = True
+
         return self.client.containers.create(image, command, **args)
 
     def removeContainerByName(self, name: str):
@@ -94,6 +104,14 @@ class DockerApi:
 
     def getContainer(self, id_or_name):
         return self.client.containers.get(id_or_name)
+
+    def listContainer(self, all=True):
+        """
+
+        :param all:
+        :return:
+        """
+        return self.client.containers.list(all=all)
 
 
 def init_docker(config):

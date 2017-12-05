@@ -35,6 +35,9 @@ def buildBlueprint(app):
     from buter.app import appBp
     app.register_blueprint(appBp)
 
+    from buter.resource import resourceBp
+    app.register_blueprint(resourceBp)
+
     #
     # from .auth import auth as auth_blueprint
     # app.register_blueprint(auth_blueprint, url_prefix='/auth')
