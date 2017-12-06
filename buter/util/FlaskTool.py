@@ -1,7 +1,7 @@
 from flask import json, request
 from flask_sqlalchemy import DeclarativeMeta
 
-from buter import Result
+from . import Result
 
 
 class SQLAlchemyEncoder(json.JSONEncoder):

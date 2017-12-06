@@ -5,9 +5,10 @@ add on 2017-11-14 16:46:35
 """
 from flask import jsonify, request
 
-from buter import Result, db, ServiceException, getAttachPath
+from buter import db, ServiceException, getAttachPath
 from buter.app import services
 from buter.logger import LOG
+from buter.util import Result
 from buter.util.FlaskTool import Q
 from buter.util.Utils import copyEntityBean, notEmptyStr
 
@@ -27,8 +28,13 @@ def detail(aid):
 
 @appBp.route("/list", methods=['GET', 'POST'])
 def lists():
-    datas = Application.query.all()
-    return jsonify(Result.ok(data=datas))
+    name = Q('name')
+    clauses = []
+    if name is not None:
+        clauses += [Application.name.like("%{}%".format(name))]
+
+    count, items = Application.query.pageFind(clauses)
+    return jsonify(Result.ok(data=items, count=count))
 
 
 @appBp.route("/edit", methods=['GET', 'POST'])

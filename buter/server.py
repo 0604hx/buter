@@ -10,8 +10,9 @@ from flask import Flask, jsonify
 from flask_apscheduler import APScheduler
 from flask_sqlalchemy import SQLAlchemy
 
-from buter import Result, ServiceException, CommonQuery
+from buter import ServiceException, CommonQuery
 from buter.logger import LOG, initLogger
+from buter.util import Result
 from buter.util.Docker import DockerApi
 from buter.util.FlaskTool import SQLAlchemyEncoder
 from config import getConfig
