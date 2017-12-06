@@ -108,7 +108,7 @@ class DockerApi:
             For example: {"Name": "on-failure", "MaximumRetryCount": 5}
         '''
         if 'restart_policy' not in args:
-            args['restart_policy'] = {"Name": "always", "MaximumRetryCount": 5}
+            args['restart_policy'] = {"Name": "always", "MaximumRetryCount": 0}
 
         return self.client.containers.create(image, command, **args)
 

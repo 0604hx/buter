@@ -35,4 +35,20 @@
 
 [如何在python中使用docker？](docker-sdk.md)
 
+## 附录
+
+### docker ToolBox 配置共享目录
+
+**场景**
+
+当在`windows`平台下使用`ToolBox`来运行`docker`时，会出现 `docker run -v` 无法挂载目录的问题
+
+**解决方案**
+
+为`VirtualBox`中的虚拟机配置共享目录即可，如下图所示：
+
+![](images/windows-virtualbox-share-folder.png)
+
+其中`G:/workspace/python/buter`是程序根目录，根据实际情况填写即可
+
 ## LOGS

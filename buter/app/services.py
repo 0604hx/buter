@@ -10,8 +10,8 @@ import shutil
 from buter import ServiceException, Application
 from buter.logger import LOG
 from buter.server import docker
-from buter.util.Utils import unzip, formatDate
-from config import BASE_DIR
+from buter.util.Utils import unzip, formatDate, copyFileToDir
+from config import BASE_DIR, IS_WINDOWS
 
 ZIP = ".zip"
 TAR = ".tar"
@@ -76,7 +76,7 @@ def do_with_container(name, op):
         container.remove()
 
 
-def load_from_file(file_path: str, application:Application, update=False,  **kwargs):
+def load_from_file(file_path: str, application: Application, update=False,  **kwargs):
     """
     从指定的目录加载文件（用户上传的文件要求为`zip`格式的压缩文件）
     :param application:
@@ -111,6 +111,13 @@ def load_from_file(file_path: str, application:Application, update=False,  **kwa
             """对于 zip 格式的文件，解压到程序根目录"""
             unzip(os.path.join(unzip_dir, file), app_dir)
             LOG.info("解压 %s 到 %s" % (file, app_dir))
+
+        if file in ["{}-{}.jar".format(application.name, application.version), "{}.jar".format(application.name)]:
+            """
+            对于 {application.name}.jar 、 {application.name}-{version}.jar 的文件，直接复制到 app_dir
+            通常经过 spring-boot 打包的 jar 可以直接运行
+            """
+            copyFileToDir(os.path.join(unzip_dir, file), app_dir)
 
         if file == APP_JSON:
             with open(os.path.join(unzip_dir, file)) as app_json:
@@ -181,7 +188,9 @@ def __transform_placeholder(content: str, app: Application):
     :param app:
     :return:
     """
+    app_dir = detect_app_dir(app).replace("\\", "/")
     return content\
         .replace("#app.id#", str(app.id))\
         .replace("#app.name#", app.name)\
-        .replace("#app.path#", detect_app_dir(app))
+        .replace("#app.path#", app_dir)\
+        .replace("#app.path_unix#", "/{}".format(app_dir).replace(":","") if IS_WINDOWS else app_dir)

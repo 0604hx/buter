@@ -1,6 +1,7 @@
 """
 
 """
+import shutil
 import zipfile
 
 import os
@@ -69,6 +70,19 @@ def unzip(file_path: str, target_dir=None):
         zip_files.extract(name, tmp_file)
 
     return tmp_file, files
+
+
+def copyFileToDir(origin, target):
+    """
+    复制文件， 如果 target 目录不存在则自动创建
+    :param origin:
+    :param target:
+    :return:
+    """
+    basename = os.path.basename(origin)
+    if not os.path.exists(target):
+        os.makedirs(target)
+    shutil.copy(origin, os.path.join(target, basename))
 
 
 def formatDate(dt=None, formatter="%Y%m%d%H%M%S"):

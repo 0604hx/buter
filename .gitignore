@@ -4,11 +4,13 @@
 __pycache__
 
 buter*.db
+buter.db-journal
 
 logs/
 build/
 dist/
 
+apps/
 attachments/
 
 # discard spec file for pyinstaller
