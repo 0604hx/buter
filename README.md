@@ -64,6 +64,30 @@
 黑科技：在缺失的位置创建空的 `pyconfig.h` 即可 =.=
 
 
+### 附录
+
+#### python script template
+
+```text
+#!/usr/bin/env python
+# encoding: utf-8
+
+#set( $SITE = "https://github.com/0604hx" )
+
+"""
+@author:    0604hx
+@license:   MIT 
+@contact:   zxingming@foxmail.com
+@site:      ${SITE}
+@software:  ${PRODUCT_NAME}
+@project:   ${PROJECT_NAME}
+@file:      ${NAME}.py
+@time:      ${DATE} ${TIME}
+"""
+
+
+```
+
 ## LOGS
 
 ### 0.0.1
