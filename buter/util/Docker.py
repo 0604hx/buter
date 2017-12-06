@@ -91,6 +91,18 @@ class DockerApi:
         if 'detach' not in args:
             args['detach'] = True
 
+        '''
+        默认为自动重启
+        restart_policy (dict) –
+            Restart the container when it exits. Configured as a dictionary with keys:
+            
+            Name One of on-failure, or always.
+            MaximumRetryCount Number of times to restart the container on failure.
+            For example: {"Name": "on-failure", "MaximumRetryCount": 5}
+        '''
+        if 'restart_policy' not in args:
+            args['restart_policy'] = {"Name": "always", "MaximumRetryCount": 5}
+
         return self.client.containers.create(image, command, **args)
 
     def removeContainerByName(self, name: str):
