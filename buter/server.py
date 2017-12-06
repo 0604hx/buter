@@ -34,8 +34,9 @@ def buildBlueprint(app):
     from buter.main import mainBp
     app.register_blueprint(mainBp)
 
-    from buter.app import appBp
+    from buter.app import appBp, dockerBp
     app.register_blueprint(appBp)
+    app.register_blueprint(dockerBp)
 
     from buter.resource import resourceBp
     app.register_blueprint(resourceBp)

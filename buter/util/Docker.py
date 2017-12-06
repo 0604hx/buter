@@ -66,6 +66,13 @@ class DockerApi:
         self.client.images.load(file.read())
         file.close()
 
+    def listImage(self):
+        """
+
+        :return:
+        """
+        return self.client.images.list()
+
     def createContainer(self, image, name=None, command=None, args={}):
         """
         参考 dockerClient.create() 方法
