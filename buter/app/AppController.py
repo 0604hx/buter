@@ -157,7 +157,7 @@ def uploadNewVersion():
 @appBp.route("/operate/<name>/<op>", methods=['GET', 'POST'])
 def operate(name, op):
     if op not in services.OPERATIONS:
-        raise ServiceException("无效的操作类型：{} (可宣传组：{})".format(op, services.OPERATIONS))
+        raise ServiceException("无效的操作类型：{} (可选：{})".format(op, services.OPERATIONS))
 
     LOG.info("即将对容器 %s 执行 %s 操作...", name, op)
     services.do_with_container(name, op)

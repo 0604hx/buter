@@ -7,6 +7,7 @@ add on 2017-11-13 17:41:44
 import traceback
 
 from flask import Flask, jsonify
+from flask_apscheduler import APScheduler
 from flask_sqlalchemy import SQLAlchemy
 
 from buter import Result, ServiceException, CommonQuery
@@ -46,12 +47,22 @@ def buildBlueprint(app):
     # app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
 
 
+def buildJobs(app, config):
+    if hasattr(config, 'JOBS'):
+        scheduler = APScheduler()
+        scheduler.init_app(app)
+        scheduler.start()
+    else:
+        LOG.info("JOBS is not defined on Config that Scheduler will not start...")
+
+
 def init_docker(config):
     try:
         docker.setup(config)
         LOG.info("docker client setup done: \n %s", docker.version())
     except Exception as e:
-        LOG.error("cannot connection to Docker Server , please check your config...")
+        LOG.error("cannot connection to Docker Server , please check your config: %s", str(e))
+        print(traceback.format_exc())
         LOG.error("检测到 Docker 配置有误，请重新配置否则无法正常使用相关的功能")
 
 
@@ -78,6 +89,7 @@ def create_app(config_name, customs=None):
     app.config.from_object(config)
     config.init_app(app)
 
+    db.app = app
     db.init_app(app)
     try:
         db.create_all()
@@ -86,6 +98,8 @@ def create_app(config_name, customs=None):
         LOG.error("error on try to create all tables", e)
 
     buildBlueprint(app)
+
+    buildJobs(app, config)
 
     @app.route('/')
     def index():

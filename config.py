@@ -34,7 +34,8 @@ def getPath(name):
     return os.path.join(BASE_DIR, name)
 
 
-class Config:
+class BasicConfig:
+    USE_RELOADER = False
     # default secret-key is md5("buter")
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'a89e59a58758ba121319b40b27f0a755'
 
@@ -83,13 +84,28 @@ class Config:
     DOCKER_TLS_VERIFY = None
     # 设置此值为 False 则不会连接到 Docker server
     DOCKER_ABLE = True
+    # docker 连接超时， 单位为秒
+    DOCKER_TIMEOUT = 10
+
+    '''
+    定时任务
+    '''
+    JOBS = [
+        {
+            'id': 'checkDocker',
+            'func': 'buter.schedule.jobs:checkDocker',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 60
+        }
+    ]
 
     @staticmethod
     def init_app(app):
         pass
 
 
-class DevelopmentConfig(Config):
+class DevelopmentConfig(BasicConfig):
     """
     开发环境下的配置，如果没有指定则作为默认配置
     """
@@ -106,13 +122,15 @@ class DevelopmentConfig(Config):
         DOCKER_TLS_VERIFY = "1"
 
 
-class TestingConfig(Config):
+class TestingConfig(BasicConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///"+getPath("buter-test.db")
 
     LOG_FILE = None
 
+    JOBS = None
 
-class ProductionConfig(Config):
+
+class ProductionConfig(BasicConfig):
     DEBUG = False
 
 

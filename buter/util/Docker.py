@@ -1,6 +1,8 @@
 import docker
 import os
 
+import config
+
 
 class DockerApi:
     """
@@ -13,13 +15,11 @@ class DockerApi:
         if config is not None:
             self.setup(config)
 
-    def setup(self, config):
-        if config.DOCKER_HOST is not None:
-            os.environ['DOCKER_HOST'] = config.DOCKER_HOST
-        if config.DOCKER_CERT_PATH is not None:
-            os.environ['DOCKER_CERT_PATH'] = config.DOCKER_CERT_PATH
-        if config.DOCKER_TLS_VERIFY is not None:
-            os.environ['DOCKER_TLS_VERIFY'] = config.DOCKER_TLS_VERIFY
+    def setup(self, cfg):
+        is_config_obj = isinstance(cfg, (config.BasicConfig, config.BasicConfig.__class__))
+        for n in ['DOCKER_HOST', 'DOCKER_CERT_PATH', 'DOCKER_TLS_VERIFY']:
+            if hasattr(cfg, n) or n in cfg:
+                os.environ[n] = getattr(cfg, n) if is_config_obj else cfg[n]
 
         # 配置 TLSConfig，详见：http://docker-py.readthedocs.io/en/stable/tls.html#docker.tls.TLSConfig
         # tls_config = docker.tls.TLSConfig(
@@ -28,7 +28,12 @@ class DockerApi:
         #     verify=True
         # )
         # self.client = docker.DockerClient(base_url=config.DOCKER_HOST, tls=tls_config)
-        self.client = docker.from_env()
+        timeout_cfg = 'DOCKER_TIMEOUT'
+        if hasattr(cfg, timeout_cfg) or n in cfg:
+            timeout = getattr(cfg, timeout_cfg) if is_config_obj else cfg[timeout_cfg]
+        else:
+            timeout = 10
+        self.client = docker.from_env(timeout=timeout)
 
     def version(self):
         """
