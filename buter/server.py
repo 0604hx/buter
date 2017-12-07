@@ -68,7 +68,7 @@ def init_docker(config):
         LOG.error("检测到 Docker 配置有误，请重新配置否则无法正常使用相关的功能")
 
 
-def create_app(config_name, customs=None):
+def create_app(config_name=None, customs=None):
     config = getConfig(config_name, customs)
 
     initLogger(config)

@@ -22,7 +22,7 @@ from PyInstaller.__main__ import run
 
 opts, args = getopt.getopt(sys.argv[1:], "hkdi:v:",['upx='])
 
-params = ['run.py','-n=buter','--log-level=ERROR']  #,'--exclude-module=PyInstaller'
+params = ['run.py','-n=buter','--log-level=ERROR', '--additional-hooks-dir=.']  #,'--exclude-module=PyInstaller'
 
 FILE = '-F'
 ICON = 'icon_128x128.ico'

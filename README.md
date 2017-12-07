@@ -91,6 +91,7 @@
 
 ### 0.0.1
 
-- [ ] 环境检测（os、python、docker）
-- [ ] Application 数据对象`CURD`
-- [ ] 部署`Java`应用
+- [x] 环境检测（os、python、docker）
+- [x] Application 数据对象`CURD`
+- [x] 部署`Java`应用
+- [ ] 使用`https`协议: `pip install pyOpenSSL`

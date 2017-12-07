@@ -61,6 +61,7 @@ class CommonQuery(BaseQuery):
 
 
 from .models import *
+from .schedule import jobs
 
 
 def getAttachPath(file_name):

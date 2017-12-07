@@ -1,10 +1,7 @@
-import os
-
 from buter.logger import LOG
 from buter.server import create_app
 
-env = os.getenv('FLASK_CONFIG') or 'default'
-app, config = create_app(env)
+app, config = create_app()
 
 if __name__ == '__main__':
     #
@@ -20,5 +17,6 @@ if __name__ == '__main__':
         host=config.SERVER_HOST,
         port=config.SERVER_PORT,
         debug=config.DEBUG,
-        use_reloader=config.USE_RELOADER
+        use_reloader=config.USE_RELOADER,
+        ssl_context=config.HTTPS
     )

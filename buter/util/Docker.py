@@ -19,7 +19,9 @@ class DockerApi:
         is_config_obj = isinstance(cfg, (config.BasicConfig, config.BasicConfig.__class__))
         for n in ['DOCKER_HOST', 'DOCKER_CERT_PATH', 'DOCKER_TLS_VERIFY']:
             if hasattr(cfg, n) or n in cfg:
-                os.environ[n] = getattr(cfg, n) if is_config_obj else cfg[n]
+                env_value = getattr(cfg, n) if is_config_obj else cfg[n]
+                if env_value is not None:
+                    os.environ[n] = env_value
 
         # 配置 TLSConfig，详见：http://docker-py.readthedocs.io/en/stable/tls.html#docker.tls.TLSConfig
         # tls_config = docker.tls.TLSConfig(
