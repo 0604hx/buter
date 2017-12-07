@@ -29,13 +29,11 @@ def checkDocker():
         if docker.client is None:
             LOG.debug("检测到 docker.client 未实例化，即将进行初始化...")
             docker.setup(current_app.config)
-            LOG.info("docker.client 初始化成功")
-            print(docker.version())
+            LOG.info("^.^ docker.client 初始化成功 ^.^")
         else:
             try:
-                docker.client.ping()
-                LOG.debug("docker server 通讯正常...")
+                LOG.debug("^.^ docker server 通讯正常 : ping=%s ^.^", docker.client.ping())
             except Exception as e:
                 LOG.info("调用 docker.client.ping() 时出错：%s", str(e))
-                docker.setup(current_app.config)
+                docker.cleanup()
         __tip()

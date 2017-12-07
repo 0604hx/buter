@@ -3,6 +3,9 @@ Application 控制器
 
 add on 2017-11-14 16:46:35
 """
+import shutil
+
+import os
 from flask import jsonify, request
 
 from buter import db, ServiceException, getAttachPath
@@ -80,20 +83,38 @@ def add():
     )
 
 
+def __loadApp(aid):
+    app = Application.query.get(aid)
+    if app:
+        return app
+    else:
+        raise ServiceException("ID={} 的应用不存在".format(aid))
+
+
 @appBp.route("/delete", methods=['GET', 'POST'])
 @appBp.route("/delete/<aid>", methods=['GET', 'POST'])
 def delete(aid=None):
     aid = aid if aid is not None else Q('ids', type=int)
-    LOG.info("客户端请求删除 ID=%d 的应用..." % aid)
+    LOG.debug("客户端请求删除 ID=%d 的应用..." % aid)
 
-    app = Application.query.get(aid)
-    if app:
-        db.session.delete(app)
-        db.session.commit()
-        LOG.info("删除 ID=%d 的应用成功" % aid)
-        return jsonify(Result.ok())
-    else:
-        raise ServiceException("ID=%d 的应用不存在故不能执行删除操作..." % aid)
+    app = __loadApp(aid)
+    db.session.delete(app)
+    db.session.commit()
+    LOG.info("删除 ID=%d 的应用成功" % aid)
+    return jsonify(Result.ok())
+
+
+@appBp.route("/clean/<aid>", methods=['GET', 'POST'])
+def clean(aid):
+    LOG.debug("客户端请求清空 ID=%s 的应用数据..." % aid)
+
+    app = __loadApp(aid)
+    app_dir = services.detect_app_dir(app)
+    if os.path.exists(app_dir):
+        shutil.rmtree(app_dir)
+        LOG.info("删除 id={} 的应用数据：{}".format(aid, app_dir))
+
+    return jsonify(Result.ok())
 
 
 @appBp.route("/stats", methods=['GET', 'POST'])

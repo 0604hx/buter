@@ -6,6 +6,7 @@ add on 2017-11-13 17:41:44
 # encoding: utf-8
 import traceback
 
+from docker.errors import APIError
 from flask import Flask, jsonify
 from flask_apscheduler import APScheduler
 from flask_sqlalchemy import SQLAlchemy
@@ -60,8 +61,8 @@ def buildJobs(app, config):
 
 def init_docker(config):
     try:
-        docker.setup(config)
-        LOG.info("docker client setup done: \n %s", docker.version())
+        network = docker.setup(config)
+        LOG.info("docker client setup done: \n %s \n default network: %s", docker.version(), network)
     except Exception as e:
         LOG.error("cannot connection to Docker Server , please check your config: %s", str(e))
         print(traceback.format_exc())

@@ -3,6 +3,8 @@ import os
 
 import config
 
+NETWORK = "buter"
+
 
 class DockerApi:
     """
@@ -15,7 +17,15 @@ class DockerApi:
         if config is not None:
             self.setup(config)
 
+    def cleanup(self):
+        self.client = None
+
     def setup(self, cfg):
+        """
+
+        :param cfg:
+        :return:
+        """
         is_config_obj = isinstance(cfg, (config.BasicConfig, config.BasicConfig.__class__))
         for n in ['DOCKER_HOST', 'DOCKER_CERT_PATH', 'DOCKER_TLS_VERIFY']:
             if hasattr(cfg, n) or n in cfg:
@@ -138,6 +148,23 @@ class DockerApi:
         :return:
         """
         return self.client.containers.list(all=all)
+
+    def createDefaultNetwork(self, name=NETWORK, driver="bridge"):
+        """
+        初始化网络
+        默认全部的应用容器都加入到 buter （driver=bridge）的网络
+
+        这样有利于各个容器间的通讯
+        :param name:
+        :param driver:
+        :return:
+        """
+        # 先检查默认的网络是否存在
+        networks = self.client.networks.list(names=[name])
+        if len(networks) > 0:
+            return networks[0]
+
+        return self.client.networks.create(name=name, driver=driver)
 
 
 def init_docker(config):

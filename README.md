@@ -1,6 +1,8 @@
 # Buter
 > 基于 `Docker`  的远程应用部署管理平台
 
+注意：此项目仅为 REST Server ，需配合 [buter-admin](https://github.com/0604hx/buter-admin) 使用
+
 ![structure](docs/images/structure.png)
 
 ## 相关库
@@ -9,6 +11,7 @@
 * [sqlalchemy](https://github.com/zzzeek/sqlalchemy)
 * [flask-sqlalchemy](https://github.com/mitsuhiko/flask-sqlalchemy)
 * [docker-py](https://github.com/docker/docker-py)
+* [Flask-APScheduler](https://github.com/viniciuschiele/flask-apscheduler)
 
 **打包**
 

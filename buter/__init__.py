@@ -2,6 +2,8 @@
 
 add on 2017-11-13 17:39:50
 """
+from sqlalchemy import text
+
 from buter.util.FlaskTool import Q
 from buter.util.Utils import formatDate
 from config import BASE_DIR
@@ -54,7 +56,7 @@ class CommonQuery(BaseQuery):
 
         count = self.filter(*clauses).count()
         items = self.filter(*clauses) \
-            .order_by(order_by) \
+            .order_by(text(order_by)) \
             .limit(page_size).offset((page - 1) * page_size)\
             .all()
         return count, items

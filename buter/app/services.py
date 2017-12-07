@@ -133,6 +133,7 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
             container_name = detect_app_name(app_ps['args'], app_ps['image'])
 
             # 判断是否需要移除旧的 container
+            old_container = None
             if kwargs.pop("remove", True):
                 try:
                     old_container = docker.getContainer(container_name)
@@ -147,8 +148,10 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
                     except Exception as e:
                         raise ServiceException("无法删除 name={} 的容器： {}".format(container_name, str(e)))
 
+            network = docker.createDefaultNetwork()
+            app_ps['args']['network'] = network.name
             docker.createContainer(app_ps['image'], container_name, app_ps['cmd'], app_ps['args'])
-            LOG.info("APP 容器 创建成功（image=%s，name=%s）" % (app_ps['image'], container_name))
+            LOG.info("APP 容器 创建成功（image=%s，name=%s, network=%s）" % (app_ps['image'], container_name, network.name))
 
     shutil.rmtree(unzip_dir)
 
