@@ -3,3 +3,4 @@ Flask-SQLAlchemy==2.3.2
 Flask-APScheduler==1.7.1
 docker==2.6.1
 PyInstaller==3.3
+pyOpenSSL==17.5.0

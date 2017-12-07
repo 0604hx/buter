@@ -6,7 +6,6 @@ import logging
 
 import sys
 
-env = os.getenv('FLASK_CONFIG') or 'default'
 
 # 对于 windows 系统，docker 相关的配置有所不同
 IS_WINDOWS = (sys.platform == 'win32')
@@ -24,6 +23,9 @@ BASE_DIR = os.path.dirname(sys.executable) \
 
 SETTING_FILE = "setting"
 
+# 如果是 pyinstaller 环境，则默认为 prod
+env = os.getenv('FLASK_CONFIG') or ('prod' if IS_PYINSTALLER else 'default')
+
 
 def getPath(name):
     """
@@ -38,6 +40,18 @@ class BasicConfig:
     USE_RELOADER = False
     # default secret-key is md5("buter")
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'a89e59a58758ba121319b40b27f0a755'
+
+    """
+    是否使用 HTTPS 协议
+    
+    如果为 true 则在启动 Server 时传递 ssl_context 参数，官方描述如下：
+        an SSL context for the connection. Either an
+                        :class:`ssl.SSLContext`, a tuple in the form
+                        ``(cert_file, pkey_file)``, the string ``'adhoc'`` if
+                        the server should automatically create one, or ``None``
+                        to disable SSL (which is the default).
+    """
+    HTTPS = None
 
     '''
     使用 本地 sqlite 数据库
@@ -132,6 +146,8 @@ class TestingConfig(BasicConfig):
 
 class ProductionConfig(BasicConfig):
     DEBUG = False
+
+    LOG_LEVEL = logging.INFO
 
 
 configs = {
