@@ -15,7 +15,6 @@ from config import BASE_DIR, IS_WINDOWS
 
 ZIP = ".zip"
 TAR = ".tar"
-RUN_TXT = "run.txt"
 APP_JSON = "app.json"
 
 OPERATIONS = ["start", "stop", "restart", "delete"]
@@ -83,7 +82,7 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
     :param update: True = 迭代更新，False = 全新部署
     :param file_path:
     :param kwargs:
-        remove  是否异常同名的旧容器，默认 True
+        remove  是否移除同名的旧容器，默认 True
 
     :return:
     """
@@ -93,10 +92,11 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
     if not file_path.endswith(ZIP):
         raise ServiceException("load_from_file 只支持 %s 结尾的文件" % ZIP)
 
-    if not update and application is None:
-        raise ServiceException("迭代更新时，应用的根目录不能为空")
-
     app_dir = detect_app_dir(application)
+
+    if update:
+        files = update_app_with_zip(file_path, app_dir)
+        return application.name, files
 
     unzip_dir, files = unzip(file_path)
     LOG.info("解压到 %s" % unzip_dir)
@@ -122,7 +122,7 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
         if file == APP_JSON:
             with open(os.path.join(unzip_dir, file)) as app_json:
                 content = __transform_placeholder(app_json.read(), application)
-                LOG.info("获取并填充 %s ：%s" % (RUN_TXT, content))
+                LOG.info("获取并填充 %s ：%s" % (APP_JSON, content))
 
                 app_ps = json.loads(content)
                 if 'args' not in app_ps:
@@ -137,12 +137,15 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
                 try:
                     old_container = docker.getContainer(container_name)
                     LOG.info("name={} 的容器已经存在：{}, id={}".format(container_name, old_container, old_container.id))
+                except Exception:
+                    pass
 
-                    old_container.remove()
-                    # docker.removeContainerByName(container_name)
-                    LOG.info("成功删除name=%s 的容器" % container_name)
-                except Exception as e:
-                    LOG.error("无法删除 name={} 的容器： {}".format(container_name, str(e)))
+                if old_container is not None:
+                    try:
+                        old_container.remove()
+                        LOG.info("成功删除name=%s 的容器" % container_name)
+                    except Exception as e:
+                        raise ServiceException("无法删除 name={} 的容器： {}".format(container_name, str(e)))
 
             docker.createContainer(app_ps['image'], container_name, app_ps['cmd'], app_ps['args'])
             LOG.info("APP 容器 创建成功（image=%s，name=%s）" % (app_ps['image'], container_name))
@@ -150,6 +153,17 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
     shutil.rmtree(unzip_dir)
 
     return container_name, files
+
+
+def update_app_with_zip(file_path, app_dir):
+    """
+    迭代更新应用， 直接把 zip 压缩包内容解压到应用根目录
+    :param file_path:
+    :param app_dir:
+    :return:
+    """
+    _, files = unzip(file_path, app_dir)
+    return files
 
 
 def detect_app_name(name, image_name: str=None):
@@ -193,4 +207,4 @@ def __transform_placeholder(content: str, app: Application):
         .replace("#app.id#", str(app.id))\
         .replace("#app.name#", app.name)\
         .replace("#app.path#", app_dir)\
-        .replace("#app.path_unix#", "/{}".format(app_dir).replace(":","") if IS_WINDOWS else app_dir)
+        .replace("#app.path_unix#", "/{}".format(app_dir).replace(":", "") if IS_WINDOWS else app_dir)

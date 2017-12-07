@@ -50,9 +50,13 @@ class CommonQuery(BaseQuery):
     def pageFind(self, clauses=[]):
         page = Q('page', 1, int)
         page_size = Q('pageSize', 20, int)
+        order_by = Q('orderBy', 'id desc', str)
 
         count = self.filter(*clauses).count()
-        items = self.filter(*clauses).limit(page_size).offset((page - 1) * page_size).all()
+        items = self.filter(*clauses) \
+            .order_by(order_by) \
+            .limit(page_size).offset((page - 1) * page_size)\
+            .all()
         return count, items
 
 

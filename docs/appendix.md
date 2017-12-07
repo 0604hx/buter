@@ -31,6 +31,11 @@
 
 [pyinstaller打包pyqt文件](https://www.cnblogs.com/dcb3688/p/4211390.html)
 
+
+[flask 使用 https 协议](http://www.cnblogs.com/superzhan/p/5115757.html)
+
 ### 开源项目
 
 [fsblog：基于Flask的个人开源博客](https://gitee.com/megadata/fsblog)
+
+[flaskbb](https://github.com/sh4nks/flaskbb)

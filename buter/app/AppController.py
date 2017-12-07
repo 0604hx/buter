@@ -154,7 +154,9 @@ def uploadNewVersion():
     resource = Resource.fromFile(saved_file, app)
     db.session.add(resource)
 
-    name, files = services.load_from_file(saved_file, app, Q('update', False, bool))
+    is_update = Q('update', 'true', str).upper() == str(True).upper()
+
+    name, files = services.load_from_file(saved_file, app, is_update)
 
     db.session.commit()
     return jsonify(Result.ok("%s 应用新版本部署成功" % name, files))
