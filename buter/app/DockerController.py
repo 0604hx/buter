@@ -5,6 +5,7 @@ add on 2017-11-20 15:59:36
 """
 from flask import jsonify, request
 
+from buter import Q
 from buter.app import dockerBp
 from buter.server import docker
 
@@ -28,3 +29,20 @@ def images():
         pass
 
     return jsonify(_images)
+
+
+@dockerBp.route("/logs/<aid>", methods=['GET', 'POST'])
+def logs(aid):
+    """
+    获取某个容器的日志信息
+    默认显示最近的 1000 条记录
+    :param aid:
+    :return:
+    """
+    tail = Q('tail', 1000, int)
+    d = ""
+    try:
+        d = docker.logs(aid, tail)
+    except Exception:
+        pass
+    return d

@@ -166,6 +166,16 @@ class DockerApi:
 
         return self.client.networks.create(name=name, driver=driver)
 
+    def logs(self, name, tail=1000):
+        """
+
+        :param name:
+        :param tail:
+        :return:
+        """
+        container = self.getContainer(name)
+        return container.logs(tail=tail)
+
 
 def init_docker(config):
     return DockerApi(config)
