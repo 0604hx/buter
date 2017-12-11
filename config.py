@@ -6,6 +6,7 @@ import logging
 
 import sys
 
+ENCODING = "utf-8"
 
 # 对于 windows 系统，docker 相关的配置有所不同
 IS_WINDOWS = (sys.platform == 'win32')

@@ -13,7 +13,9 @@ from buter.app import services
 from buter.logger import LOG
 from buter.util import Result
 from buter.util.FlaskTool import Q
+from buter.util.OSUtil import listDir
 from buter.util.Utils import copyEntityBean, notEmptyStr
+from config import ENCODING
 
 from . import appBp
 from ..models import Application, Resource
@@ -159,9 +161,7 @@ def uploadNewVersion():
 
     :return:
     """
-    file = request.files['file']
-    if file is None:
-        raise ServiceException("无法检测到文件，请先上传")
+    file = __detect_file()
 
     app = __detect_app()
     auto_create = app.id is None
@@ -193,6 +193,60 @@ def operate(name, op):
     return jsonify(Result.ok("{} 执行 {} 操作成功".format(name, op)))
 
 
+@appBp.route("/fs/<name>", methods=['GET', 'POST'])
+def filesystem(name):
+    """
+
+    :param name:
+    :return:
+    """
+    location = Q("location", "", str)
+    target_dir = os.path.join(__detect_app_dir(name), location)
+    files = listDir(target_dir) if os.path.exists(target_dir) else []
+    return jsonify(Result.ok(data=files))
+
+
+@appBp.route("/fs/upload/<name>")
+def filesystemUpload(name):
+    """
+    上传新文件
+    :param name:
+    :return:
+    """
+    file = __detect_file()
+    location = Q("location", "", str)
+    target_file = os.path.join(__detect_app_dir(name), location, file.filename)
+
+    # 如果文件已经存在，则取消上传
+    if os.path.exists(target_file):
+        raise ServiceException("目标文件已经存在：%s/%s" % (location, file.filename))
+
+    file.save(target_file)
+
+    return jsonify(Result.ok("文件成功上传到 %s/%s" % (location, file.filename)))
+
+
+@appBp.route("/fs/update/<name>")
+def filesystemUpdate(name):
+    """
+
+    :param name:
+    :return:
+    """
+    location = Q("location", "", str)
+    content = Q("content")
+    if content is None:
+        raise ServiceException("请输入更新的内容")
+
+    file = os.path.join(__detect_app_dir(name), location)
+    if not os.path.exists(file):
+        raise ServiceException("待更新的文件不存在：%s" % location)
+    with open(file, 'w', encoding=ENCODING) as f:
+        f.write(content)
+
+    return jsonify(Result.ok())
+
+
 def __detect_app():
     aid = Q('id', 0, int)
     if aid == 0:
@@ -201,3 +255,23 @@ def __detect_app():
         return Application(name=name, version=version)
     else:
         return Application.query.get(aid)
+
+
+def __detect_file(form_name="file"):
+    file = request.files[form_name]
+    if file is None:
+        raise ServiceException("无法检测到文件，请先上传")
+    return file
+
+
+def __detect_app_dir(name):
+    """
+    如果app目录不存在，报错
+    :param name:
+    :return:
+    """
+    app_dir = services.detect_app_dir(name)
+    if not os.path.exists(app_dir):
+        raise ServiceException("无法找到应用根目录")
+
+    return app_dir
