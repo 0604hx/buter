@@ -31,6 +31,11 @@ def detail(aid):
     return jsonify(Application.query.get(aid))
 
 
+@appBp.route("/name/<name>")
+def detailByName(name):
+    return jsonify(Application.query.getOne(name=name))
+
+
 @appBp.route("/list", methods=['GET', 'POST'])
 def lists():
     name = Q('name')
@@ -206,13 +211,14 @@ def filesystem(name):
     return jsonify(Result.ok(data=files))
 
 
-@appBp.route("/fs/upload/<name>")
+@appBp.route("/fs/upload/<name>", methods=['POST'])
 def filesystemUpload(name):
     """
     上传新文件
     :param name:
     :return:
     """
+    print("-------------------")
     file = __detect_file()
     location = Q("location", "", str)
     target_file = os.path.join(__detect_app_dir(name), location, file.filename)
@@ -226,7 +232,24 @@ def filesystemUpload(name):
     return jsonify(Result.ok("文件成功上传到 %s/%s" % (location, file.filename)))
 
 
-@appBp.route("/fs/update/<name>")
+@appBp.route("/fs/content/<name>", methods=['GET', 'POST'])
+def filesystemContent(name):
+    """
+
+    :param name:
+    :return:
+    """
+    location = Q("location", "", str)
+
+    file = os.path.join(__detect_app_dir(name), location)
+    if not os.path.exists(file):
+        raise ServiceException("查询的文件不存在：%s" % location)
+
+    with open(file, 'r') as f:
+        return jsonify(Result.ok(data=f.read()))
+
+
+@appBp.route("/fs/update/<name>", methods=['GET', 'POST'])
 def filesystemUpdate(name):
     """
 
@@ -234,15 +257,23 @@ def filesystemUpdate(name):
     :return:
     """
     location = Q("location", "", str)
-    content = Q("content")
-    if content is None:
-        raise ServiceException("请输入更新的内容")
 
     file = os.path.join(__detect_app_dir(name), location)
     if not os.path.exists(file):
-        raise ServiceException("待更新的文件不存在：%s" % location)
-    with open(file, 'w', encoding=ENCODING) as f:
-        f.write(content)
+        raise ServiceException("待操作的文件不存在：%s" % location)
+
+    # 优先判断是否为删除文件
+    if Q("del",0, int) == 1:
+        shutil.rmtree(file)
+        LOG.info("删除 %s/%s " % (name, location))
+    else:
+        content = Q("content")
+        if content is None:
+            raise ServiceException("请输入更新的内容")
+
+        with open(file, 'w', encoding=ENCODING) as f:
+            f.write(content)
+            LOG.info("更新 %s/%s 的内容" % (name, location))
 
     return jsonify(Result.ok())
 

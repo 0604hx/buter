@@ -101,7 +101,10 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
     unzip_dir, files = unzip(file_path)
     LOG.info("解压到 %s" % unzip_dir)
 
+    container_name = application.name
+
     for file in [str(f) for f in files]:
+        LOG.debug("processing %s", file)
         if file.endswith(TAR):
             LOG.info("检测到 %s 文件 %s，即将导入该镜像..." % (TAR, file))
             docker.loadImage(os.path.join(unzip_dir, file))
@@ -131,6 +134,7 @@ def load_from_file(file_path: str, application: Application, update=False,  **kw
                     raise ServiceException("{} 中必须定义 'image' 属性，否则无法创建容器".format(APP_JSON))
 
             container_name = detect_app_name(app_ps['args'], app_ps['image'])
+            LOG.info("检测到 容器名：%s", container_name)
 
             # 判断是否需要移除旧的 container
             old_container = None
@@ -195,7 +199,10 @@ def detect_app_dir(app_or_name):
     else:
         name = formatDate()
 
-    return "%s/apps/%s" % (BASE_DIR, name)
+    app_dir = "%s/apps/%s" % (BASE_DIR, name)
+    if not os.path.exists(app_dir):
+        os.makedirs(app_dir)
+    return app_dir
 
 
 def __transform_placeholder(content: str, app: Application):
