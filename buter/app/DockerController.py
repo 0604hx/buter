@@ -3,9 +3,12 @@ Docker 操作相关的控制器
 
 add on 2017-11-20 15:59:36
 """
+import sys
+from subprocess import Popen
+
 from flask import jsonify, request
 
-from buter import Q
+from buter import Q, ServiceException
 from buter.app import dockerBp
 from buter.server import docker
 
@@ -46,3 +49,21 @@ def logs(aid):
     except Exception:
         pass
     return d
+
+
+@dockerBp.route("/install", methods=['GET', 'POST'])
+def install():
+    """
+    安装 docker ，只支持 linux 系统
+
+    对于 Linux 系统，直接执行
+    curl -sSL http://acs-public-mirror.oss-cn-hangzhou.aliyuncs.com/docker-engine/internet | sh -
+    快速安装 docker， 详见：https://yq.aliyun.com/articles/7695?spm=5176.100239.blogcont29941.14.kJOgzy
+
+    :return:
+    """
+    is_linux = sys.platform == 'Linux'
+    if not is_linux:
+        raise ServiceException("只支持在 Linux 系统下安装 docker（其他平台请手动安装）")
+    # cmd = "curl -sSL http://acs-public-mirror.oss-cn-hangzhou.aliyuncs.com/docker-engine/internet | sh -"
+    pass

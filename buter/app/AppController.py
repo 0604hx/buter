@@ -6,6 +6,8 @@ add on 2017-11-14 16:46:35
 import shutil
 
 import os
+
+import chardet
 from flask import jsonify, request
 
 from buter import db, ServiceException, getAttachPath
@@ -245,8 +247,16 @@ def filesystemContent(name):
     if not os.path.exists(file):
         raise ServiceException("查询的文件不存在：%s" % location)
 
-    with open(file, 'r') as f:
-        return jsonify(Result.ok(data=f.read()))
+    # 读取前 1024 字节判断文本类型
+    raw = open(file, 'rb').read(min(512, os.path.getsize(file)))
+    result = chardet.detect(raw)
+    encoding = result['encoding']
+
+    with open(file, 'r', encoding=encoding) as f:
+        try:
+            return jsonify(Result.ok(data=f.read()))
+        except Exception as e:
+            raise ServiceException("尝试用编码 {} 读取 {} 但不成功：{}".format(encoding, location, str(e)))
 
 
 @appBp.route("/fs/update/<name>", methods=['GET', 'POST'])
@@ -263,8 +273,8 @@ def filesystemUpdate(name):
         raise ServiceException("待操作的文件不存在：%s" % location)
 
     # 优先判断是否为删除文件
-    if Q("del",0, int) == 1:
-        shutil.rmtree(file)
+    if Q("del", 0, int) == 1:
+        os.remove(file)
         LOG.info("删除 %s/%s " % (name, location))
     else:
         content = Q("content")
